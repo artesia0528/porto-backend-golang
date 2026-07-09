@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// Config menyimpan semua konfigurasi aplikasi.
 type Config struct {
 	Port      string
 	JWTSecret string
@@ -14,8 +15,8 @@ type Config struct {
 	Env       string // "development" atau "production"
 }
 
-var AppConfig *Config
-
+// LoadConfig membaca konfigurasi dari environment variables dan .env file.
+// Mengembalikan *Config — caller bertanggung jawab menyimpan referensinya.
 func LoadConfig() *Config {
 	// Coba load .env, tapi kalau tidak ada file-nya (misal di production
 	// yang env-nya di-set langsung di server), jangan sampai app crash
@@ -36,11 +37,10 @@ func LoadConfig() *Config {
 		log.Fatal("JWT_SECRET wajib diisi di file .env")
 	}
 
-	AppConfig = cfg
 	return cfg
 }
 
-// getEnv ambil env variable, kalau kosong pakai nilai default
+// getEnv ambil env variable, kalau kosong pakai nilai default.
 func getEnv(key, defaultValue string) string {
 	value := os.Getenv(key)
 	if value == "" {

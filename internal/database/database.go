@@ -1,22 +1,25 @@
 package database
 
 import (
-	"log"
+	"fmt"
 	"portfolio-backend/internal/config"
 	"portfolio-backend/internal/models"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-func Connect() {
-	db, err := gorm.Open(sqlite.Open(config.AppConfig.DBPath), &gorm.Config{})
+// Connect membuka koneksi database dan menjalankan auto-migration.
+// Mengembalikan *gorm.DB dan error (bukan global variable).
+func Connect(cfg *config.Config) (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open(cfg.DBPath), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Gagal konek database:", err)
+		return nil, fmt.Errorf("gagal konek database: %w", err)
 	}
 
-	db.AutoMigrate(&models.User{}, &models.Project{})
+	if err := db.AutoMigrate(&models.User{}, &models.Project{}); err != nil {
+		return nil, fmt.Errorf("gagal migrasi database: %w", err)
+	}
 
-	DB = db
+	return db, nil
 }
