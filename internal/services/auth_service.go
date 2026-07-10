@@ -3,9 +3,11 @@ package services
 import (
 	"errors"
 	"portfolio-backend/internal/dto"
-	// "portfolio-backend/internal/models"
+	"portfolio-backend/internal/models"
 	"portfolio-backend/internal/repositories"
 	"portfolio-backend/internal/utils"
+
+	"github.com/google/uuid"
 )
 
 // AuthService menangani business logic untuk autentikasi.
@@ -42,26 +44,27 @@ func (s *AuthService) Login(req dto.LoginRequest) (string, error) {
 }
 
 // Register membuat user baru.
-// func (s *AuthService) Register(req dto.RegisterRequest) (*models.User, error) {
-// 	// Cek apakah username sudah dipakai
-// 	existing, _ := s.userRepo.FindByUsername(req.Username)
-// 	if existing != nil {
-// 		return nil, errors.New("username sudah digunakan")
-// 	}
+func (s *AuthService) Register(req dto.RegisterRequest) (*models.User, error) {
+	// Cek apakah username sudah dipakai
+	existing, _ := s.userRepo.FindByUsername(req.Username)
+	if existing != nil {
+		return nil, errors.New("username sudah digunakan")
+	}
 
-// 	hashedPassword, err := utils.HashPassword(req.Password)
-// 	if err != nil {
-// 		return nil, errors.New("gagal memproses password")
-// 	}
+	hashedPassword, err := utils.HashPassword(req.Password)
+	if err != nil {
+		return nil, errors.New("gagal memproses password")
+	}
 
-// 	user := &models.User{
-// 		Username: req.Username,
-// 		Password: hashedPassword,
-// 	}
+	user := &models.User{
+		ID:       uuid.New().String(), // Generate random UUID
+		Username: req.Username,
+		Password: hashedPassword,
+	}
 
-// 	if err := s.userRepo.Create(user); err != nil {
-// 		return nil, errors.New("gagal membuat user")
-// 	}
+	if err := s.userRepo.Create(user); err != nil {
+		return nil, errors.New("gagal membuat user")
+	}
 
-// 	return user, nil
-// }
+	return user, nil
+}

@@ -8,7 +8,7 @@ import (
 )
 
 // GenerateToken membuat JWT token baru dengan user_id sebagai claim.
-func GenerateToken(userID uint, secret string) (string, error) {
+func GenerateToken(userID string, secret string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
 		"exp":     time.Now().Add(24 * time.Hour).Unix(),

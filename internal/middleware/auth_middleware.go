@@ -43,17 +43,17 @@ func AuthRequired(jwtSecret string) gin.HandlerFunc {
 			return
 		}
 
-		userID, ok := claims["user_id"].(float64)
+		userID, ok := claims["user_id"].(string) // Sekarang berupa string
 		if !ok {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"success": false,
-				"error":   "User ID tidak ditemukan di token",
+				"error":   "User ID tidak ditemukan di token atau format tidak valid",
 			})
 			return
 		}
 
 		// Set userID ke context agar bisa diakses handler di belakang middleware
-		c.Set("userID", uint(userID))
+		c.Set("userID", userID)
 		c.Next()
 	}
 }

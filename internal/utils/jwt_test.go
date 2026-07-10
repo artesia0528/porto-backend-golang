@@ -6,7 +6,7 @@ import (
 
 func TestGenerateAndValidateToken(t *testing.T) {
 	secret := "test-secret-key-for-unit-tests"
-	userID := uint(42)
+	userID := "550e8400-e29b-41d4-a716-446655440000"
 
 	// Generate token
 	tokenString, err := GenerateToken(userID, secret)
@@ -32,7 +32,7 @@ func TestGenerateAndValidateToken(t *testing.T) {
 func TestValidateToken_InvalidSecret(t *testing.T) {
 	secret := "correct-secret"
 	wrongSecret := "wrong-secret"
-	userID := uint(1)
+	userID := "user-123"
 
 	tokenString, err := GenerateToken(userID, secret)
 	if err != nil {

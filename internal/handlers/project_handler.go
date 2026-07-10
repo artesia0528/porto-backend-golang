@@ -5,7 +5,6 @@ import (
 	"portfolio-backend/internal/dto"
 	"portfolio-backend/internal/models"
 	"portfolio-backend/internal/services"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,8 +49,8 @@ func (h *ProjectHandler) CreateProject(c *gin.Context) {
 
 // UpdateProject menangani PUT /api/admin/projects/:id (butuh login).
 func (h *ProjectHandler) UpdateProject(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
+	id := c.Param("id")
+	if id == "" {
 		models.ErrorResponse(c, http.StatusBadRequest, "ID tidak valid")
 		return
 	}
@@ -62,7 +61,7 @@ func (h *ProjectHandler) UpdateProject(c *gin.Context) {
 		return
 	}
 
-	project, err := h.projectService.Update(uint(id), req)
+	project, err := h.projectService.Update(id, req)
 	if err != nil {
 		models.ErrorResponse(c, http.StatusNotFound, err.Error())
 		return
@@ -73,13 +72,13 @@ func (h *ProjectHandler) UpdateProject(c *gin.Context) {
 
 // DeleteProject menangani DELETE /api/admin/projects/:id (butuh login).
 func (h *ProjectHandler) DeleteProject(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
+	id := c.Param("id")
+	if id == "" {
 		models.ErrorResponse(c, http.StatusBadRequest, "ID tidak valid")
 		return
 	}
 
-	if err := h.projectService.Delete(uint(id)); err != nil {
+	if err := h.projectService.Delete(id); err != nil {
 		models.ErrorResponse(c, http.StatusNotFound, err.Error())
 		return
 	}

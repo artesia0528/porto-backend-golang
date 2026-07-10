@@ -5,6 +5,8 @@ import (
 	"portfolio-backend/internal/dto"
 	"portfolio-backend/internal/models"
 	"portfolio-backend/internal/repositories"
+
+	"github.com/google/uuid"
 )
 
 // ProjectService menangani business logic untuk project.
@@ -23,7 +25,7 @@ func (s *ProjectService) GetAll() ([]models.Project, error) {
 }
 
 // GetByID mengambil satu project berdasarkan ID.
-func (s *ProjectService) GetByID(id uint) (*models.Project, error) {
+func (s *ProjectService) GetByID(id string) (*models.Project, error) {
 	project, err := s.projectRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("project tidak ditemukan")
@@ -34,6 +36,7 @@ func (s *ProjectService) GetByID(id uint) (*models.Project, error) {
 // Create membuat project baru.
 func (s *ProjectService) Create(req dto.CreateProjectRequest) (*models.Project, error) {
 	project := &models.Project{
+		ID:          uuid.New().String(), // Generate random UUID
 		Title:       req.Title,
 		Description: req.Description,
 		ImageURL:    req.ImageURL,
@@ -47,7 +50,7 @@ func (s *ProjectService) Create(req dto.CreateProjectRequest) (*models.Project, 
 }
 
 // Update memperbarui project yang sudah ada.
-func (s *ProjectService) Update(id uint, req dto.UpdateProjectRequest) (*models.Project, error) {
+func (s *ProjectService) Update(id string, req dto.UpdateProjectRequest) (*models.Project, error) {
 	project, err := s.projectRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("project tidak ditemukan")
@@ -72,7 +75,7 @@ func (s *ProjectService) Update(id uint, req dto.UpdateProjectRequest) (*models.
 }
 
 // Delete menghapus project berdasarkan ID.
-func (s *ProjectService) Delete(id uint) error {
+func (s *ProjectService) Delete(id string) error {
 	rowsAffected, err := s.projectRepo.Delete(id)
 	if err != nil {
 		return errors.New("gagal menghapus project")

@@ -5,6 +5,7 @@ import (
 	"portfolio-backend/internal/models"
 	"portfolio-backend/internal/utils"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -23,6 +24,7 @@ func SeedAdmin(db *gorm.DB) {
 	}
 
 	admin := models.User{
+		ID:       uuid.New().String(), // Generate random UUID
 		Username: "admin",
 		Password: hashedPassword,
 	}
@@ -32,5 +34,5 @@ func SeedAdmin(db *gorm.DB) {
 		return
 	}
 
-	slog.Info("Admin user berhasil dibuat", "username", "admin")
+	slog.Info("Admin user berhasil dibuat", "username", "admin", "id", admin.ID)
 }

@@ -25,9 +25,9 @@ func (r *ProjectRepository) FindAll() ([]models.Project, error) {
 
 // FindByID mencari project berdasarkan ID.
 // Mengembalikan error jika tidak ditemukan.
-func (r *ProjectRepository) FindByID(id uint) (*models.Project, error) {
+func (r *ProjectRepository) FindByID(id string) (*models.Project, error) {
 	var project models.Project
-	result := r.db.First(&project, id)
+	result := r.db.Where("id = ?", id).First(&project)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -46,7 +46,7 @@ func (r *ProjectRepository) Update(project *models.Project) error {
 
 // Delete menghapus project berdasarkan ID.
 // Mengembalikan jumlah rows yang terhapus.
-func (r *ProjectRepository) Delete(id uint) (int64, error) {
-	result := r.db.Delete(&models.Project{}, id)
+func (r *ProjectRepository) Delete(id string) (int64, error) {
+	result := r.db.Where("id = ?", id).Delete(&models.Project{})
 	return result.RowsAffected, result.Error
 }
