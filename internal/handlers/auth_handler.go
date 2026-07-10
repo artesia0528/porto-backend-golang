@@ -37,21 +37,21 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 // Register menangani POST /api/register.
-func (h *AuthHandler) Register(c *gin.Context) {
-	var req dto.RegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		models.ErrorResponse(c, http.StatusBadRequest, "Input tidak valid: "+err.Error())
-		return
-	}
+// func (h *AuthHandler) Register(c *gin.Context) {
+// 	var req dto.RegisterRequest
+// 	if err := c.ShouldBindJSON(&req); err != nil {
+// 		models.ErrorResponse(c, http.StatusBadRequest, "Input tidak valid: "+err.Error())
+// 		return
+// 	}
 
-	user, err := h.authService.Register(req)
-	if err != nil {
-		models.ErrorResponse(c, http.StatusConflict, err.Error())
-		return
-	}
+// 	user, err := h.authService.Register(req)
+// 	if err != nil {
+// 		models.ErrorResponse(c, http.StatusConflict, err.Error())
+// 		return
+// 	}
 
-	models.SuccessResponse(c, http.StatusCreated, "User berhasil dibuat", gin.H{
-		"id":       user.ID,
-		"username": user.Username,
-	})
-}
+// 	models.SuccessResponse(c, http.StatusCreated, "User berhasil dibuat", gin.H{
+// 		"id":       user.ID,
+// 		"username": user.Username,
+// 	})
+// }

@@ -13,7 +13,7 @@ func SetupRoutes(r *gin.Engine, jwtSecret string, authHandler *handlers.AuthHand
 	{
 		// Publik — tanpa login
 		api.POST("/login", authHandler.Login)
-		api.POST("/register", authHandler.Register)
+		// api.POST("/register", authHandler.Register)
 		api.GET("/projects", projectHandler.GetProjects)
 
 		// Butuh login (untuk content management)

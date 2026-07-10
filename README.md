@@ -66,7 +66,6 @@ Saat pertama kali dijalankan, seeder akan membuat admin user:
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/api/login` | Login, dapatkan JWT token |
-| `POST` | `/api/register` | Register user baru |
 | `GET` | `/api/projects` | Lihat semua project |
 
 ### Admin (butuh JWT)
