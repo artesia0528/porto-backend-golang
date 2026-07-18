@@ -51,15 +51,18 @@ func main() {
 	// 5. Dependency Injection: wire semua layer
 	userRepo := repositories.NewUserRepository(db)
 	projectRepo := repositories.NewProjectRepository(db)
+	messageRepo := repositories.NewMessageRepository(db)
 
 	authService := services.NewAuthService(userRepo, cfg.JWTSecret)
 	projectService := services.NewProjectService(projectRepo)
+	messageService := services.NewMessageService(messageRepo)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	projectHandler := handlers.NewProjectHandler(projectService)
+	messageHandler := handlers.NewMessageHandler(messageService)
 
 	// 6. Register routes
-	routes.SetupRoutes(r, cfg.JWTSecret, authHandler, projectHandler)
+	routes.SetupRoutes(r, cfg.JWTSecret, authHandler, projectHandler, messageHandler)
 
 	// 7. Graceful shutdown
 	srv := &http.Server{

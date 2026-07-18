@@ -8,21 +8,29 @@ import (
 )
 
 // SetupRoutes mendaftarkan semua route ke Gin engine.
-func SetupRoutes(r *gin.Engine, jwtSecret string, authHandler *handlers.AuthHandler, projectHandler *handlers.ProjectHandler) {
+func SetupRoutes(r *gin.Engine, jwtSecret string, authHandler *handlers.AuthHandler, projectHandler *handlers.ProjectHandler, messageHandler *handlers.MessageHandler) {
 	api := r.Group("/api")
 	{
 		// Publik — tanpa login
 		api.POST("/login", authHandler.Login)
 		// api.POST("/register", authHandler.Register)
 		api.GET("/projects", projectHandler.GetProjects)
+		
+		api.POST("/contact", messageHandler.Create)
 
 		// Butuh login (untuk content management)
 		admin := api.Group("/admin")
 		admin.Use(middleware.AuthRequired(jwtSecret))
 		{
+			// Projects
 			admin.POST("/projects", projectHandler.CreateProject)
 			admin.PUT("/projects/:id", projectHandler.UpdateProject)
 			admin.DELETE("/projects/:id", projectHandler.DeleteProject)
+
+			// Messages
+			admin.GET("/messages", messageHandler.GetAll)
+			admin.PATCH("/messages/:id/read", messageHandler.MarkAsRead)
+			admin.DELETE("/messages/:id", messageHandler.Delete)
 		}
 	}
 }
