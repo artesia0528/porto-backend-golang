@@ -8,7 +8,7 @@ import (
 )
 
 // SetupRoutes mendaftarkan semua route ke Gin engine.
-func SetupRoutes(r *gin.Engine, jwtSecret string, authHandler *handlers.AuthHandler, projectHandler *handlers.ProjectHandler, messageHandler *handlers.MessageHandler) {
+func SetupRoutes(r *gin.Engine, jwtSecret string, authHandler *handlers.AuthHandler, projectHandler *handlers.ProjectHandler, messageHandler *handlers.MessageHandler, blogHandler *handlers.BlogHandler) {
 	api := r.Group("/api")
 	{
 		// Publik — tanpa login
@@ -17,6 +17,8 @@ func SetupRoutes(r *gin.Engine, jwtSecret string, authHandler *handlers.AuthHand
 		api.GET("/projects", projectHandler.GetProjects)
 		
 		api.POST("/contact", messageHandler.Create)
+
+		api.GET("/blogs", blogHandler.GetAll)
 
 		// Butuh login (untuk content management)
 		admin := api.Group("/admin")
@@ -31,6 +33,11 @@ func SetupRoutes(r *gin.Engine, jwtSecret string, authHandler *handlers.AuthHand
 			admin.GET("/messages", messageHandler.GetAll)
 			admin.PATCH("/messages/:id/read", messageHandler.MarkAsRead)
 			admin.DELETE("/messages/:id", messageHandler.Delete)
+
+			//BLog
+			admin.POST("/blogs", blogHandler.Create)
+            admin.PUT("/blogs/:id", blogHandler.Update)
+            admin.DELETE("/blogs/:id", blogHandler.Delete)
 		}
 	}
 }

@@ -52,17 +52,20 @@ func main() {
 	userRepo := repositories.NewUserRepository(db)
 	projectRepo := repositories.NewProjectRepository(db)
 	messageRepo := repositories.NewMessageRepository(db)
+	blogRepo := repositories.NewBlogRepository(db)
 
 	authService := services.NewAuthService(userRepo, cfg.JWTSecret)
 	projectService := services.NewProjectService(projectRepo)
 	messageService := services.NewMessageService(messageRepo)
+	blogService := services.NewBlogService(blogRepo)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	projectHandler := handlers.NewProjectHandler(projectService)
 	messageHandler := handlers.NewMessageHandler(messageService)
+	blogHandler := handlers.NewBlogHandler(blogService)
 
 	// 6. Register routes
-	routes.SetupRoutes(r, cfg.JWTSecret, authHandler, projectHandler, messageHandler)
+	routes.SetupRoutes(r, cfg.JWTSecret, authHandler, projectHandler, messageHandler, blogHandler)
 
 	// 7. Graceful shutdown
 	srv := &http.Server{
