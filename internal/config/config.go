@@ -9,10 +9,10 @@ import (
 
 // Config menyimpan semua konfigurasi aplikasi.
 type Config struct {
-	Port      string
-	JWTSecret string
-	DBPath    string
-	Env       string // "development" atau "production"
+	Port        string
+	JWTSecret   string
+	DatabaseURL string
+	Env         string // "development" atau "production"
 }
 
 // LoadConfig membaca konfigurasi dari environment variables dan .env file.
@@ -25,16 +25,20 @@ func LoadConfig() *Config {
 	}
 
 	cfg := &Config{
-		Port:      getEnv("PORT", "8080"),
-		JWTSecret: getEnv("JWT_SECRET", ""),
-		DBPath:    getEnv("DB_PATH", "portfolio.db"),
-		Env:       getEnv("APP_ENV", "development"),
+		Port:        getEnv("PORT", "8080"),
+		JWTSecret:   getEnv("JWT_SECRET", ""),
+		DatabaseURL: getEnv("DATABASE_URL", ""),
+		Env:         getEnv("APP_ENV", "development"),
 	}
 
 	// Validasi: kalau JWT_SECRET kosong, hentikan app sekarang juga.
 	// Lebih baik crash saat startup daripada jalan dengan auth yang rapuh.
 	if cfg.JWTSecret == "" {
 		log.Fatal("JWT_SECRET wajib diisi di file .env")
+	}
+
+	if cfg.DatabaseURL == "" {
+		log.Fatal("DATABASE_URL wajib diisi di file .env")
 	}
 
 	return cfg

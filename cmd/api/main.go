@@ -35,7 +35,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Gagal konek database: ", err)
 	}
-	slog.Info("Database terkoneksi", "path", cfg.DBPath)
+	slog.Info("Database PostgreSQL terkoneksi")
 
 	// 3. Seed admin user (jika belum ada)
 	database.SeedAdmin(db)

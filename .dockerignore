@@ -1,0 +1,21 @@
+# Git
+.git
+.gitignore
+
+# Environment (jangan sampai masuk ke image)
+.env
+
+# SQLite database lama
+*.db
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose*.yml

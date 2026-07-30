@@ -1,4 +1,4 @@
-.PHONY: run build test tidy clean
+.PHONY: run build test tidy clean db-up db-down db-reset prod-up prod-down
 
 # Jalankan server dalam mode development
 run:
@@ -29,3 +29,32 @@ clean:
 # Go vet
 vet:
 	go vet ./...
+
+# ============================================
+# Docker — Development (DB only)
+# ============================================
+
+# Start PostgreSQL container
+db-up:
+	docker compose up -d
+
+# Stop PostgreSQL container
+db-down:
+	docker compose down
+
+# Reset database (hapus volume, mulai fresh)
+db-reset:
+	docker compose down -v
+	docker compose up -d
+
+# ============================================
+# Docker — Production (App + DB)
+# ============================================
+
+# Build & start semua services
+prod-up:
+	docker compose -f docker-compose.prod.yml up -d --build
+
+# Stop semua services
+prod-down:
+	docker compose -f docker-compose.prod.yml down
