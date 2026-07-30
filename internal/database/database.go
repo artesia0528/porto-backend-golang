@@ -17,7 +17,7 @@ func Connect(cfg *config.Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("gagal konek database: %w", err)
 	}
 
-	if err := db.AutoMigrate(&models.User{}, &models.Project{}, &models.Message{}, &models.Blog{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.Project{}, &models.Message{}, &models.Blog{}, &models.Experience{}); err != nil {
 		return nil, fmt.Errorf("gagal migrasi database: %w", err)
 	}
 
