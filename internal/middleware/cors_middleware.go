@@ -10,7 +10,13 @@ import (
 )
 
 func CORSMiddleware() gin.HandlerFunc {
-	allowedOrigins := strings.Split(os.Getenv("CORS_ALLOWED_ORIGINS"), ",")
+	allowedOrigins := strings.FieldsFunc(os.Getenv("CORS_ALLOWED_ORIGINS"), func(r rune) bool {
+		return r == ',' || r == ' ' || r == '\t' || r == '\n' || r == '\r'
+	})
+
+	if len(allowedOrigins) == 0 {
+		allowedOrigins = []string{"*"}
+	}
 
 	return cors.New(cors.Config{
 		AllowOrigins:     allowedOrigins,
