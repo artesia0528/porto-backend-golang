@@ -1,13 +1,13 @@
 package dto
 
+// CreateBlogRequest adalah DTO untuk request membuat blog baru (multipart/form-data).
 type CreateBlogRequest struct {
-	Title    string `json:"title" binding:"required,min=3,max=100"`
-	Content  string `json:"content" binding:"required,min=10"`
-	ImageURL string `json:"image_url" binding:"omitempty,url"`
+	Title   string `form:"title" binding:"required,min=3,max=100"`
+	Content string `form:"content" binding:"required,min=10"`
 }
 
+// UpdateBlogRequest adalah DTO untuk request update blog (multipart/form-data).
 type UpdateBlogRequest struct {
-	Title    string `json:"title" binding:"omitempty,min=3,max=100"`
-	Content  string `json:"content" binding:"omitempty,min=10"`
-	ImageURL string `json:"image_url" binding:"omitempty,url"`
+	Title   string `form:"title" binding:"omitempty,min=3,max=100"`
+	Content string `form:"content" binding:"omitempty,min=10"`
 }

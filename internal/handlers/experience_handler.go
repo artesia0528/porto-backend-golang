@@ -31,14 +31,21 @@ func (h *ExperienceHandler) GetAll(c *gin.Context) {
 }
 
 // Create menangani POST /api/admin/experiences (butuh login).
+// Menerima multipart/form-data: company, position, start_date, end_date, is_current, description, logo (file).
 func (h *ExperienceHandler) Create(c *gin.Context) {
 	var req dto.CreateExperienceRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		models.ErrorResponse(c, http.StatusBadRequest, "Input tidak valid: "+err.Error())
 		return
 	}
 
-	experience, err := h.experienceService.Create(req)
+	file, err := c.FormFile("logo")
+	if err != nil {
+		models.ErrorResponse(c, http.StatusBadRequest, "File logo wajib diunggah")
+		return
+	}
+
+	experience, err := h.experienceService.Create(req, file)
 	if err != nil {
 		models.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -48,6 +55,7 @@ func (h *ExperienceHandler) Create(c *gin.Context) {
 }
 
 // Update menangani PUT /api/admin/experiences/:id (butuh login).
+// Menerima multipart/form-data: company, position, start_date, end_date, is_current, description, logo (file, optional).
 func (h *ExperienceHandler) Update(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -56,12 +64,14 @@ func (h *ExperienceHandler) Update(c *gin.Context) {
 	}
 
 	var req dto.UpdateExperienceRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		models.ErrorResponse(c, http.StatusBadRequest, "Input tidak valid: "+err.Error())
 		return
 	}
 
-	experience, err := h.experienceService.Update(id, req)
+	file, _ := c.FormFile("logo")
+
+	experience, err := h.experienceService.Update(id, req, file)
 	if err != nil {
 		models.ErrorResponse(c, http.StatusNotFound, err.Error())
 		return

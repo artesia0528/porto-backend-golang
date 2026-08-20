@@ -32,3 +32,6 @@ coverage.txt
 
 # Go
 vendor/
+
+# Uploads
+uploads/

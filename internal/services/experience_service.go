@@ -2,9 +2,11 @@ package services
 
 import (
 	"errors"
+	"mime/multipart"
 	"portfolio-backend/internal/dto"
 	"portfolio-backend/internal/models"
 	"portfolio-backend/internal/repositories"
+	"portfolio-backend/internal/utils"
 
 	"github.com/google/uuid"
 )
@@ -12,16 +14,26 @@ import (
 // ExperienceService menangani business logic untuk experience.
 type ExperienceService struct {
 	experienceRepo *repositories.ExperienceRepository
+	baseURL        string
 }
 
 // NewExperienceService membuat instance baru ExperienceService.
-func NewExperienceService(experienceRepo *repositories.ExperienceRepository) *ExperienceService {
-	return &ExperienceService{experienceRepo: experienceRepo}
+func NewExperienceService(experienceRepo *repositories.ExperienceRepository, baseURL string) *ExperienceService {
+	return &ExperienceService{experienceRepo: experienceRepo, baseURL: baseURL}
 }
 
 // GetAll mengambil semua experience.
 func (s *ExperienceService) GetAll() ([]models.Experience, error) {
-	return s.experienceRepo.FindAll()
+	experiences, err := s.experienceRepo.FindAll()
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range experiences {
+		experiences[i].LogoURL = s.buildFileURL(experiences[i].LogoURL)
+	}
+
+	return experiences, nil
 }
 
 // GetByID mengambil satu experience berdasarkan ID.
@@ -30,11 +42,18 @@ func (s *ExperienceService) GetByID(id string) (*models.Experience, error) {
 	if err != nil {
 		return nil, errors.New("experience tidak ditemukan")
 	}
+
+	experience.LogoURL = s.buildFileURL(experience.LogoURL)
 	return experience, nil
 }
 
-// Create membuat experience baru.
-func (s *ExperienceService) Create(req dto.CreateExperienceRequest) (*models.Experience, error) {
+// Create membuat experience baru dengan file upload.
+func (s *ExperienceService) Create(req dto.CreateExperienceRequest, file *multipart.FileHeader) (*models.Experience, error) {
+	logoPath, err := utils.SaveUploadedFile(file, "experiences")
+	if err != nil {
+		return nil, err
+	}
+
 	experience := &models.Experience{
 		ID:          uuid.New().String(),
 		Company:     req.Company,
@@ -43,22 +62,26 @@ func (s *ExperienceService) Create(req dto.CreateExperienceRequest) (*models.Exp
 		EndDate:     req.EndDate,
 		IsCurrent:   req.IsCurrent,
 		Description: req.Description,
-		LogoURL:     req.LogoURL,
+		LogoURL:     logoPath,
 	}
 
 	if err := s.experienceRepo.Create(experience); err != nil {
+		utils.DeleteFile(logoPath)
 		return nil, errors.New("gagal membuat experience")
 	}
 
+	experience.LogoURL = s.buildFileURL(experience.LogoURL)
 	return experience, nil
 }
 
 // Update memperbarui experience yang sudah ada.
-func (s *ExperienceService) Update(id string, req dto.UpdateExperienceRequest) (*models.Experience, error) {
+func (s *ExperienceService) Update(id string, req dto.UpdateExperienceRequest, file *multipart.FileHeader) (*models.Experience, error) {
 	experience, err := s.experienceRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("experience tidak ditemukan")
 	}
+
+	oldLogoPath := experience.LogoURL
 
 	// Update hanya field yang diisi
 	if req.Company != "" {
@@ -79,19 +102,37 @@ func (s *ExperienceService) Update(id string, req dto.UpdateExperienceRequest) (
 	if req.Description != "" {
 		experience.Description = req.Description
 	}
-	if req.LogoURL != "" {
-		experience.LogoURL = req.LogoURL
+
+	if file != nil {
+		newLogoPath, err := utils.SaveUploadedFile(file, "experiences")
+		if err != nil {
+			return nil, err
+		}
+		experience.LogoURL = newLogoPath
 	}
 
 	if err := s.experienceRepo.Update(experience); err != nil {
+		if file != nil {
+			utils.DeleteFile(experience.LogoURL)
+		}
 		return nil, errors.New("gagal memperbarui experience")
 	}
 
+	if file != nil {
+		utils.DeleteFile(oldLogoPath)
+	}
+
+	experience.LogoURL = s.buildFileURL(experience.LogoURL)
 	return experience, nil
 }
 
 // Delete menghapus experience berdasarkan ID.
 func (s *ExperienceService) Delete(id string) error {
+	experience, err := s.experienceRepo.FindByID(id)
+	if err != nil {
+		return errors.New("experience tidak ditemukan")
+	}
+
 	rowsAffected, err := s.experienceRepo.Delete(id)
 	if err != nil {
 		return errors.New("gagal menghapus experience")
@@ -99,5 +140,15 @@ func (s *ExperienceService) Delete(id string) error {
 	if rowsAffected == 0 {
 		return errors.New("experience tidak ditemukan")
 	}
+
+	utils.DeleteFile(experience.LogoURL)
 	return nil
+}
+
+// buildFileURL membangun URL lengkap dari path relatif file.
+func (s *ExperienceService) buildFileURL(relPath string) string {
+	if relPath == "" {
+		return ""
+	}
+	return s.baseURL + relPath
 }

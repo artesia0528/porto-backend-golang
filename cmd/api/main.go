@@ -17,6 +17,7 @@ import (
 	"portfolio-backend/internal/repositories"
 	"portfolio-backend/internal/routes"
 	"portfolio-backend/internal/services"
+	"portfolio-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +41,14 @@ func main() {
 	// 3. Seed admin user (jika belum ada)
 	database.SeedAdmin(db)
 
-	// 4. Setup Gin
+	// 4. Inisialisasi direktori upload
+	uploadDirs := []string{"projects", "blogs", "experiences"}
+	if err := utils.InitUploadDirs(uploadDirs); err != nil {
+		log.Fatal("Gagal membuat direktori upload: ", err)
+	}
+	slog.Info("Direktori upload siap")
+
+	// 5. Setup Gin
 	if cfg.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -48,7 +56,10 @@ func main() {
 	r := gin.Default()
 	r.Use(middleware.CORSMiddleware())
 
-	// 5. Dependency Injection: wire semua layer
+	// Serve file upload secara publik
+	r.Static("/uploads", "./uploads")
+
+	// 6. Dependency Injection: wire semua layer
 	userRepo := repositories.NewUserRepository(db)
 	projectRepo := repositories.NewProjectRepository(db)
 	messageRepo := repositories.NewMessageRepository(db)
@@ -56,10 +67,10 @@ func main() {
 	experienceRepo := repositories.NewExperienceRepository(db)
 
 	authService := services.NewAuthService(userRepo, cfg.JWTSecret)
-	projectService := services.NewProjectService(projectRepo)
+	projectService := services.NewProjectService(projectRepo, cfg.BaseURL)
 	messageService := services.NewMessageService(messageRepo)
-	blogService := services.NewBlogService(blogRepo)
-	experienceService := services.NewExperienceService(experienceRepo)
+	blogService := services.NewBlogService(blogRepo, cfg.BaseURL)
+	experienceService := services.NewExperienceService(experienceRepo, cfg.BaseURL)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	projectHandler := handlers.NewProjectHandler(projectService)
@@ -67,10 +78,10 @@ func main() {
 	blogHandler := handlers.NewBlogHandler(blogService)
 	experienceHandler := handlers.NewExperienceHandler(experienceService)
 
-	// 6. Register routes
+	// 7. Register routes
 	routes.SetupRoutes(r, cfg.JWTSecret, authHandler, projectHandler, messageHandler, blogHandler, experienceHandler)
 
-	// 7. Graceful shutdown
+	// 8. Graceful shutdown
 	srv := &http.Server{
 		Addr:    ":" + cfg.Port,
 		Handler: r,

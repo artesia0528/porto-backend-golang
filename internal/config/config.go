@@ -13,6 +13,7 @@ type Config struct {
 	JWTSecret   string
 	DatabaseURL string
 	Env         string // "development" atau "production"
+	BaseURL     string // URL dasar untuk serving file (misal: http://localhost:8080)
 }
 
 // LoadConfig membaca konfigurasi dari environment variables dan .env file.
@@ -29,6 +30,7 @@ func LoadConfig() *Config {
 		JWTSecret:   getEnv("JWT_SECRET", ""),
 		DatabaseURL: getEnv("DATABASE_URL", ""),
 		Env:         getEnv("APP_ENV", "development"),
+		BaseURL:     getEnv("BASE_URL", "http://localhost:8080"),
 	}
 
 	// Validasi: kalau JWT_SECRET kosong, hentikan app sekarang juga.

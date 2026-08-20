@@ -1,23 +1,21 @@
 package dto
 
-// CreateExperienceRequest adalah DTO untuk request membuat experience baru.
+// CreateExperienceRequest adalah DTO untuk request membuat experience baru (multipart/form-data).
 type CreateExperienceRequest struct {
-	Company     string `json:"company" binding:"required,min=2,max=100"`
-	Position    string `json:"position" binding:"required,min=2,max=100"`
-	StartDate   string `json:"start_date" binding:"required"`
-	EndDate     string `json:"end_date"`
-	IsCurrent   bool   `json:"is_current"`
-	Description string `json:"description"`
-	LogoURL     string `json:"logo_url" binding:"omitempty,url"`
+	Company     string `form:"company" binding:"required,min=2,max=100"`
+	Position    string `form:"position" binding:"required,min=2,max=100"`
+	StartDate   string `form:"start_date" binding:"required"`
+	EndDate     string `form:"end_date"`
+	IsCurrent   bool   `form:"is_current"`
+	Description string `form:"description"`
 }
 
-// UpdateExperienceRequest adalah DTO untuk request update experience.
+// UpdateExperienceRequest adalah DTO untuk request update experience (multipart/form-data).
 type UpdateExperienceRequest struct {
-	Company     string `json:"company" binding:"omitempty,min=2,max=100"`
-	Position    string `json:"position" binding:"omitempty,min=2,max=100"`
-	StartDate   string `json:"start_date"`
-	EndDate     string `json:"end_date"`
-	IsCurrent   *bool  `json:"is_current"` // pointer agar bisa bedakan false vs tidak diisi
-	Description string `json:"description"`
-	LogoURL     string `json:"logo_url" binding:"omitempty,url"`
+	Company     string `form:"company" binding:"omitempty,min=2,max=100"`
+	Position    string `form:"position" binding:"omitempty,min=2,max=100"`
+	StartDate   string `form:"start_date"`
+	EndDate     string `form:"end_date"`
+	IsCurrent   *bool  `form:"is_current"` // pointer agar bisa bedakan false vs tidak diisi
+	Description string `form:"description"`
 }

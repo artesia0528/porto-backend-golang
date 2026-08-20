@@ -27,6 +27,9 @@ WORKDIR /app
 # Copy binary dari builder stage
 COPY --from=builder /app/server .
 
+# Buat direktori uploads (untuk menyimpan file yang di-upload)
+RUN mkdir -p /app/uploads/projects /app/uploads/blogs /app/uploads/experiences
+
 EXPOSE 8080
 
 CMD ["./server"]

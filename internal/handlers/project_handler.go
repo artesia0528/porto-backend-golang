@@ -31,14 +31,21 @@ func (h *ProjectHandler) GetProjects(c *gin.Context) {
 }
 
 // CreateProject menangani POST /api/admin/projects (butuh login).
+// Menerima multipart/form-data: title, description, image (file).
 func (h *ProjectHandler) CreateProject(c *gin.Context) {
 	var req dto.CreateProjectRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		models.ErrorResponse(c, http.StatusBadRequest, "Input tidak valid: "+err.Error())
 		return
 	}
 
-	project, err := h.projectService.Create(req)
+	file, err := c.FormFile("image")
+	if err != nil {
+		models.ErrorResponse(c, http.StatusBadRequest, "File gambar wajib diunggah")
+		return
+	}
+
+	project, err := h.projectService.Create(req, file)
 	if err != nil {
 		models.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -48,6 +55,7 @@ func (h *ProjectHandler) CreateProject(c *gin.Context) {
 }
 
 // UpdateProject menangani PUT /api/admin/projects/:id (butuh login).
+// Menerima multipart/form-data: title, description, image (file, optional).
 func (h *ProjectHandler) UpdateProject(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -56,12 +64,15 @@ func (h *ProjectHandler) UpdateProject(c *gin.Context) {
 	}
 
 	var req dto.UpdateProjectRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		models.ErrorResponse(c, http.StatusBadRequest, "Input tidak valid: "+err.Error())
 		return
 	}
 
-	project, err := h.projectService.Update(id, req)
+	// File optional saat update
+	file, _ := c.FormFile("image")
+
+	project, err := h.projectService.Update(id, req, file)
 	if err != nil {
 		models.ErrorResponse(c, http.StatusNotFound, err.Error())
 		return

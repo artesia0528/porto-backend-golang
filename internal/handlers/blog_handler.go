@@ -28,14 +28,21 @@ func (h *BlogHandler) GetAll(c *gin.Context) {
 }
 
 // POST /api/admin/blogs (butuh login)
+// Menerima multipart/form-data: title, content, image (file).
 func (h *BlogHandler) Create(c *gin.Context) {
 	var req dto.CreateBlogRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		models.ErrorResponse(c, http.StatusBadRequest, "Input tidak valid: "+err.Error())
 		return
 	}
 
-	blog, err := h.blogService.Create(req)
+	file, err := c.FormFile("image")
+	if err != nil {
+		models.ErrorResponse(c, http.StatusBadRequest, "File gambar wajib diunggah")
+		return
+	}
+
+	blog, err := h.blogService.Create(req, file)
 	if err != nil {
 		models.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -44,16 +51,19 @@ func (h *BlogHandler) Create(c *gin.Context) {
 }
 
 // PUT /api/admin/blogs/:id (butuh login)
+// Menerima multipart/form-data: title, content, image (file, optional).
 func (h *BlogHandler) Update(c *gin.Context) {
 	id := c.Param("id")
 
 	var req dto.UpdateBlogRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		models.ErrorResponse(c, http.StatusBadRequest, "Input tidak valid: "+err.Error())
 		return
 	}
 
-	blog, err := h.blogService.Update(id, req)
+	file, _ := c.FormFile("image")
+
+	blog, err := h.blogService.Update(id, req, file)
 	if err != nil {
 		models.ErrorResponse(c, http.StatusNotFound, err.Error())
 		return
